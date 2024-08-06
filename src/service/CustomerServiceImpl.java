@@ -140,6 +140,37 @@ public class CustomerServiceImpl implements CustomerService{
 			closeAll(rs, ps, conn);
 		}
 	}
+	
+	@Override
+	public GuestHouse findByHouseno(int houseno) throws SQLException, HouseNotFoundException{
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		GuestHouse house = null;
+		List<Room> rooms = new ArrayList<Room>();
+		
+		try {
+			conn = getConnect();
+			String query = "SELECT house_no, type, sel_id, price, house_phone, house_name, location FROM guesthouse WHERE house_no = ?";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseno);
+			
+			rs = ps.executeQuery();
+			
+			if(!rs.isBeforeFirst()) throw new HouseNotFoundException("[ Result Error Message ] => 해당 이름의 게스트하우스가 존재하지 않습니다.");
+			else {
+				while(rs.next()) {
+					rooms.add(new Room(rs.getInt("type"),rs.getInt("price")));
+					house = new GuestHouse(rs.getInt("house_no"), rs.getString("sel_id"), rs.getString("house_phone"), rs.getString("house_name"), rs.getString("location"), rooms);
+				}
+			}
+			return house;
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
+	}
 
 	@Override
 	public List<GuestHouse> findByGrade() throws SQLException, HouseNotFoundException {
@@ -273,42 +304,15 @@ public class CustomerServiceImpl implements CustomerService{
 			closeAll(rs, ps, conn);
 		}
 	}
-	
-	@Override
-	public boolean isDangol(String custId, int houseno) throws SQLException {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		boolean dangol = false;
-		
-		try {
-			conn = getConnect();
-			String query = "SELECT count(reserv_no) FROM receipt WHERE cust_id = ? AND house_no = ?";
-			ps = conn.prepareStatement(query);
-			
-			ps.setString(1, custId);
-			ps.setInt(2, houseno);
-			
-			rs = ps.executeQuery();
-			
-			if(rs.next()) {
-				if(rs.getInt(1)>=2) dangol = true;
-			}
-			return dangol;
-			
-		} finally {			
-			closeAll(rs, ps, conn);
-		}
-	}
 
 	@Override
 	public void reserve(Receipt receipt, int discount) throws SQLException, NeedMoneyException, CanNotReserveException {
 		List<Receipt> receipts = searchReserveByHouseno(receipt.getHouseNo(), receipt.getType());
 		if(!receipts.isEmpty()) {
 			for(Receipt r : receipts) {
+				if(receipt.geteDate().compareTo(r.geteDate())>=0&&r.getsDate().compareTo(receipt.getsDate())>=0) throw new CanNotReserveException();
 				if(r.geteDate().compareTo(receipt.geteDate())>=0&&receipt.geteDate().compareTo(r.getsDate())>=0) throw new CanNotReserveException();
 				else if(r.geteDate().compareTo(receipt.getsDate())>=0&&receipt.getsDate().compareTo(r.getsDate())>=0) throw new CanNotReserveException();
-				else if(receipt.geteDate().compareTo(r.geteDate())>=0&&r.getsDate().compareTo(receipt.getsDate())>=0) throw new CanNotReserveException();
 			}
 		}
 		int totalprice = receipt.geteDate().compareTo(receipt.getsDate())*searchRoomPrice(receipt.getHouseNo(), receipt.getType());
@@ -500,17 +504,31 @@ public class CustomerServiceImpl implements CustomerService{
 	}
 
 	@Override
-	public String descHouse(int houseNo) {
-		
-		return null;
+	public String descHouse(int houseNo, String custId) throws SQLException, ReceiptNotFoundException, HouseNotFoundException {
+		GuestHouse guest = findByHouseno(houseNo);
+		String detail = "";
+		System.out.println(detail);
+		for(Room room : guest.getRooms()) {
+			detail += "이 방은 다른 " + marketPrice(houseNo, room.getType()) + "%의 숙소보다 쌉니다!!\n";			
+		}
+		detail += "재방문율 : " + rateRevisit(houseNo) + "%\n";
+		detail += "성비 : 남 " + rateGender(houseNo) + "% 여 " + (100-rateGender(houseNo)) + "%\n";
+		detail += "평점 : " + showGrade(houseNo) + " 점";
+		detail += "방문 횟수 : " + visitCount(houseNo, custId) + "번";
+		return detail;
 	}
 
 	@Override
-	public int rateRevisit(int houseNo) throws SQLException {
+	public int rateRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
+		return 100*searchRevisit(houseNo)/searchvisit(houseNo);
+		
+	}
+	
+	@Override
+	public int searchRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		
 		try {
 			conn = getConnect();
 			String query = "SELECT count(d)\n"
@@ -523,9 +541,61 @@ public class CustomerServiceImpl implements CustomerService{
 			rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				return 0;
-			}
-			return 0;
+				return rs.getInt(1);
+			} else throw new ReceiptNotFoundException("이 게스트하우스를 예약한 사람이 없습니다.");
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
+		
+	}
+
+	@Override
+	public int searchvisit(int houseNo) throws SQLException, ReceiptNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try {
+			conn = getConnect();
+			String query = "SELECT count(d)\n"
+					+ "FROM (SELECT cust_id, count(reserv_no) d FROM receipt WHERE house_no = ? GROUP BY cust_id) f";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseNo);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getInt(1);
+			} else throw new ReceiptNotFoundException("이 게스트하우스를 예약한 사람이 없습니다.");
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
+		
+	}
+	
+	@Override
+	public int rateGender(int houseNo) throws SQLException, ReceiptNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try {
+			conn = getConnect();
+			String query = "SELECT count(c.cust_gender)\n"
+					+ "FROM (SELECT cust_id FROM receipt WHERE house_no = ? GROUP BY cust_id) f, customer c\n"
+					+ "WHERE c.cust_id=f.cust_id AND cust_gender='M'";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseNo);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				return 100 * rs.getInt(1) / searchvisit(houseNo);
+			}else throw new ReceiptNotFoundException("이 게스트하우스를 예약한 사람이 없습니다.");
 			
 		} finally {			
 			closeAll(rs, ps, conn);
@@ -533,27 +603,80 @@ public class CustomerServiceImpl implements CustomerService{
 	}
 
 	@Override
-	public int rateGender(int houseNo) {
+	public int marketPrice(int houseNo, int type) throws SQLException, ReceiptNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
 		
-		return 0;
+		try {
+			conn = getConnect();
+			String query = "SELECT round(r.rate * 100) rate\n"
+					+ "FROM (SELECT house_no, type, price, cume_dist() over(ORDER BY price DESC) rate FROM guesthouse) r\n"
+					+ "WHERE r.house_no=? AND r.type=?";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseNo);
+			ps.setInt(2, type);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getInt(1);
+			}else throw new ReceiptNotFoundException("이 게스트하우스를 예약한 사람이 없습니다.");
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
 	}
 
 	@Override
-	public int marketPrice(int houseNo) {
+	public double showGrade(int houseNo) throws SQLException, ReceiptNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
 		
-		return 0;
+		try {
+			conn = getConnect();
+			String query = "SELECT round(avg(grade),1) avggrade FROM receipt WHERE house_no = ? GROUP BY house_no";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseNo);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getDouble(1);
+			}else throw new ReceiptNotFoundException("이 게스트하우스를 예약한 사람이 없습니다.");
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
 	}
 
 	@Override
-	public double showGrade(int houseNo) {
+	public int visitCount(int houseNo, String custId) throws SQLException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
 		
-		return 0;
-	}
-
-	@Override
-	public int visitCount(int houseNo) {
-		
-		return 0;
+		try {
+			conn = getConnect();
+			String query = "SELECT count(reserv_no) d FROM receipt WHERE house_no = ? AND cust_id=? GROUP BY cust_id";
+			ps = conn.prepareStatement(query);
+			
+			ps.setInt(1, houseNo);
+			ps.setString(2, custId);
+			
+			rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+			return 0;
+			
+		} finally {			
+			closeAll(rs, ps, conn);
+		}
 	}
 
 	@Override
