@@ -20,6 +20,15 @@ public class GuestHouse {
 		this.location = location;
 		this.rooms = rooms;
 	}
+	public GuestHouse(String sellerId, String housePhone, String houseName, String location,
+			List<Room> rooms) {
+		super();
+		this.sellerId = sellerId;
+		this.housePhone = housePhone;
+		this.houseName = houseName;
+		this.location = location;
+		this.rooms = rooms;
+	}
 	public GuestHouse() {}
 	
 	public int getHouseNo() {
