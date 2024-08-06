@@ -15,6 +15,7 @@ import exception.DuplicateNoException;
 import exception.RecordNotFoundException;
 import vo.GuestHouse;
 import vo.Room;
+import vo.Sales;
 
 
 public class SellerServiceImpl implements SellerService{
@@ -32,8 +33,6 @@ public class SellerServiceImpl implements SellerService{
 	public static SellerServiceImpl getInstance() {
 		return service;
 	}
-	
-	
 	
 	////////////////////////////////공통 로직(고정적인 부분) //////////////////////////////////
 	public Connection getConnection() throws SQLException{
@@ -77,7 +76,7 @@ public class SellerServiceImpl implements SellerService{
 		
 		for(int i=0; i<3; i++) {
 			String query2 = "INSERT INTO guesthouse (house_no, type, sel_id, price, house_phone, house_name, location)"
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+							+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 	
 			try(Connection conn = getConnection(); 
 				PreparedStatement ps = conn.prepareStatement(query2)) {
@@ -120,7 +119,6 @@ public class SellerServiceImpl implements SellerService{
 				ps.setInt(6, guestHouse.getHouseNo());
 				ps.setInt(7, guestHouse.getRooms().get(i).getType());
 
-				
 				if(ps.executeUpdate() ==0) {
 					throw new RecordNotFoundException("[ Result Error Message ] => "+"정보를 수정할 게스트하우스가 존재하지 않거나 판매자 ID가 존재하지 않습니다.");
 				}
@@ -196,10 +194,31 @@ public class SellerServiceImpl implements SellerService{
 		return false;
 	}
 	
+	//메소드 추가 - 게하 이름 찾기
+	public String getHouseName(int houseNo) throws SQLException{
+		String hName = null;
+		String query = "select distinct(house_name) house_name, house_no from guesthouse where house_no=?";
+		
+		try(Connection conn = getConnection(); 
+			PreparedStatement ps = conn.prepareStatement(query)) {
+				
+			ps.setInt(1, houseNo);
+				
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				hName = rs.getString("house_name");
+			}
+		}catch (SQLException e) {
+			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
+		}
+		return hName;
+	}
+	
 	//6. 연매출
 	@Override
-	public long searchSalesByYear(int houseNo) throws SQLException{
-		long sumY = 0;
+	public Sales searchSalesByYear(int houseNo) throws SQLException{
+		Sales sumY = null;
 		String query = "SELECT sum(total_price) 합계 "
 						+ "FROM receipt "
 						+ "WHERE year(start_date)=year(CURDATE()) AND house_no=?";
@@ -212,9 +231,9 @@ public class SellerServiceImpl implements SellerService{
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				sumY = rs.getLong("합계");
+				sumY = new Sales(getHouseName(houseNo), rs.getLong("합계"));
 			}else {//매출이 없는 경우
-				sumY = 0;
+				sumY = new Sales(getHouseName(houseNo), 0);
 			}
 		
 		}catch (SQLException e) {
@@ -225,8 +244,8 @@ public class SellerServiceImpl implements SellerService{
 	
 	//7. 분기매출
 	@Override
-	public long searchSalesByQuarter(int houseNo) throws SQLException{
-		long sumQ = 0;
+	public Sales searchSalesByQuarter(int houseNo) throws SQLException{
+		Sales sumQ = null;
 		String query = "SELECT sum(total_price) 합계 "
 						+ "FROM receipt "
 						+ "WHERE quarter(start_date)=quarter(CURDATE()) AND house_no=?";
@@ -239,9 +258,9 @@ public class SellerServiceImpl implements SellerService{
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				sumQ = rs.getLong("합계");
+				sumQ = new Sales(getHouseName(houseNo), rs.getLong("합계"));
 			}else {//매출이 없는 경우
-				sumQ = 0;
+				sumQ = new Sales(getHouseName(houseNo), 0);
 			}
 		
 		}catch (SQLException e) {
@@ -252,8 +271,8 @@ public class SellerServiceImpl implements SellerService{
 	
 	//8. 월매출
 	@Override
-	public long searchSalesByMonth(int houseNo) throws SQLException{
-		long sumM = 0;
+	public Sales searchSalesByMonth(int houseNo) throws SQLException{
+		Sales sumM = null;
 		String query = "SELECT sum(total_price) 합계 "
 						+ "FROM receipt "
 						+ "WHERE month(start_date)=month(CURDATE()) AND house_no=?";
@@ -266,9 +285,9 @@ public class SellerServiceImpl implements SellerService{
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				sumM = rs.getLong("합계");
+				sumM = new Sales(getHouseName(houseNo), rs.getLong("합계"));
 			}else {//매출이 없는 경우
-				sumM = 0;
+				sumM = new Sales(getHouseName(houseNo), 0);
 			}
 		
 		}catch (SQLException e) {
@@ -297,5 +316,6 @@ public class SellerServiceImpl implements SellerService{
 	    System.out.println(service.searchSalesByYear(1));
 	    System.out.println(service.searchSalesByQuarter(1));
 	    System.out.println(service.searchSalesByMonth(1));
+	    System.out.println(service.getHouseName(1));
 	}
 }

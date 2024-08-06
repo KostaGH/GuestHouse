@@ -30,9 +30,8 @@ public class GuestHouse {
 		this.location = location;
 		this.rooms = rooms;
 	}
+
 	public GuestHouse() {}
-	
-	
 	
 	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location,
 			double avgGrade, List<Room> rooms) {
