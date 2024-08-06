@@ -8,6 +8,7 @@ public class GuestHouse {
     private String housePhone;
     private String houseName;
     private String location;
+    private double avgGrade;
     private List<Room> rooms;
     
 	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location,
@@ -31,6 +32,19 @@ public class GuestHouse {
 	}
 	public GuestHouse() {}
 	
+	
+	
+	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location,
+			double avgGrade, List<Room> rooms) {
+		super();
+		this.houseNo = houseNo;
+		this.sellerId = sellerId;
+		this.housePhone = housePhone;
+		this.houseName = houseName;
+		this.location = location;
+		this.avgGrade = avgGrade;
+		this.rooms = rooms;
+	}
 	public int getHouseNo() {
 		return houseNo;
 	}
@@ -71,6 +85,6 @@ public class GuestHouse {
 	@Override
 	public String toString() {
 		return "GuestHouse [houseNo=" + houseNo + ", sellerId=" + sellerId + ", housePhone=" + housePhone + ", houseName="
-				+ houseName + ", location=" + location + ", rooms=" + rooms + "]";
+				+ houseName + ", location=" + location +((avgGrade!=0) ? ", avgGrade=" + avgGrade : "") + ", rooms=" + rooms + "]";
 	}
 }

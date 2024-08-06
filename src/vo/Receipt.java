@@ -24,6 +24,25 @@ public class Receipt {
 		this.bDate = bDate;
 		this.totalPrice = totalPrice;
 	}
+	
+	
+	public Receipt(int houseNo, int type, String custId, String sDate, String eDate) {
+		super();
+		this.houseNo = houseNo;
+		this.type = type;
+		this.custId = custId;
+		this.sDate = sDate;
+		this.eDate = eDate;
+	}
+
+
+	public Receipt(String sDate, String eDate) {
+		super();
+		this.sDate = sDate;
+		this.eDate = eDate;
+	}
+
+
 	public Receipt() {}
 	
 	public int getReserveNo() {

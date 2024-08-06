@@ -3,26 +3,48 @@ package service;
 import vo.GuestHouse;
 import vo.Receipt;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-public interface CustomerService {
-    List<GuestHouse> findByName(String name);
-    List<GuestHouse> findByGrade();
-    List<GuestHouse> findByPrice(int sPrice, int ePrice);
-    List<GuestHouse> findByLocation(String location);
+import exception.CanNotReserveException;
+import exception.HouseNotFoundException;
+import exception.NeedMoneyException;
+import exception.ReceiptNotFoundException;
 
-    void reserve(Receipt receipt);
-    void reserveCancel(int reserveNo);
-    void chargeBalance(int custId, int balance);
+public interface CustomerService {
+    List<GuestHouse> findByName(String name) throws SQLException, HouseNotFoundException;
+    List<GuestHouse> findByGrade() throws SQLException, HouseNotFoundException;
+    List<GuestHouse> findByPrice(int sPrice, int ePrice) throws SQLException, HouseNotFoundException;
+    List<GuestHouse> findByLocation(String location) throws SQLException, HouseNotFoundException;
+
+    boolean isDangol(String custId, int houseno) throws SQLException, HouseNotFoundException;
+    void reserve(Receipt receipt, int discount) throws SQLException, NeedMoneyException, CanNotReserveException;
+    int searchRoomPrice(int houseno, int type) throws SQLException;
+    int searchBalance(String custId) throws SQLException;
+    void reserveCancel(int reserveNo) throws SQLException, ReceiptNotFoundException;
+    void chargeBalance(String custId, int balance) throws SQLException;
+    void updateCustBalance(String custId, int totalprice) throws SQLException;
+    void updateSelBalance(String custId, int totalprice) throws SQLException;
+    void chargeSelBalance(String selId, int totalprice) throws SQLException;
+    String searchSelId(int houseno) throws SQLException;
 
     String descHouse(int houseNo);
-    int rateRevisit(int houseNo);
+    int rateRevisit(int houseNo) throws SQLException;
     int rateGender(int houseNo);
     int marketPrice(int houseNo);
     double showGrade(int houseNo);
     int visitCount(int houseNo);
 
-    void grader(int reserveNo, int grade);
-    List<Receipt> listReserve(String custId);
+    void grader(int reserveNo, int grade) throws SQLException;
+    List<Receipt> listReserve(String custId) throws SQLException, ReceiptNotFoundException;
+	Connection getConnect() throws SQLException;
+	void closeAll(PreparedStatement ps, Connection conn) throws SQLException;
+	void closeAll(ResultSet rs, PreparedStatement ps, Connection conn) throws SQLException;
+	List<GuestHouse> findALLGuestHouse() throws SQLException, HouseNotFoundException;
+	Receipt searchReserve(int reserveno) throws SQLException;
+	List<Receipt> searchReserveByHouseno(int houseno, int type) throws SQLException;
 
 }
