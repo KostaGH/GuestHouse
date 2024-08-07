@@ -217,11 +217,12 @@ public class SellerServiceImpl implements SellerService{
 	
 	//6. 연매출
 	@Override
-	public Sales searchSalesByYear(int houseNo) throws SQLException{
-		Sales sumY = null;
-		String query = "SELECT sum(total_price) 합계 "
+	public List<Sales> searchSalesByYear(int houseNo) throws SQLException{
+		List<Sales> yList = new ArrayList<>();
+		String query = "SELECT year(start_date) 분기, sum(total_price) 합계 "
 						+ "FROM receipt "
-						+ "WHERE year(start_date)=year(CURDATE()) AND house_no=?";
+						+ "WHERE house_no=? "
+						+ "group by 1";
 		
 		try(Connection conn = getConnection(); 
 			PreparedStatement ps = conn.prepareStatement(query)) {
@@ -230,25 +231,27 @@ public class SellerServiceImpl implements SellerService{
 			
 			ResultSet rs = ps.executeQuery();
 			
-			if(rs.next()) {
-				sumY = new Sales(getHouseName(houseNo), rs.getLong("합계"));
-			}else {//매출이 없는 경우
-				sumY = new Sales(getHouseName(houseNo), 0);
+			while(rs.next()) {
+				yList.add(new Sales(rs.getInt("분기"), getHouseName(houseNo), rs.getLong("합계")));
 			}
-		
+			if(yList.isEmpty()) {
+				yList.add(new Sales(getHouseName(houseNo), 0));
+			}
+			
 		}catch (SQLException e) {
 			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
 		}
-		return sumY;
+		return yList;
 	}
 	
 	//7. 분기매출
 	@Override
-	public Sales searchSalesByQuarter(int houseNo) throws SQLException{
-		Sales sumQ = null;
-		String query = "SELECT sum(total_price) 합계 "
+	public List<Sales> searchSalesByQuarter(int houseNo) throws SQLException{
+		List<Sales> qList = new ArrayList<>();
+		String query = "SELECT quarter(start_date) 분기, sum(total_price) 합계 "
 						+ "FROM receipt "
-						+ "WHERE quarter(start_date)=quarter(CURDATE()) AND house_no=?";
+						+ "WHERE house_no=? "
+						+ "group by 1";
 		
 		try(Connection conn = getConnection(); 
 			PreparedStatement ps = conn.prepareStatement(query)) {
@@ -257,25 +260,27 @@ public class SellerServiceImpl implements SellerService{
 			
 			ResultSet rs = ps.executeQuery();
 			
-			if(rs.next()) {
-				sumQ = new Sales(getHouseName(houseNo), rs.getLong("합계"));
-			}else {//매출이 없는 경우
-				sumQ = new Sales(getHouseName(houseNo), 0);
+			while(rs.next()) {
+				qList.add(new Sales(rs.getInt("분기"), getHouseName(houseNo), rs.getLong("합계")));
 			}
-		
+			if(qList.isEmpty()) {
+				qList.add(new Sales(getHouseName(houseNo), 0));
+			}
+			
 		}catch (SQLException e) {
 			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
 		}
-		return sumQ;
+		return qList;
 	}
 	
 	//8. 월매출
 	@Override
-	public Sales searchSalesByMonth(int houseNo) throws SQLException{
-		Sales sumM = null;
-		String query = "SELECT sum(total_price) 합계 "
+	public List<Sales> searchSalesByMonth(int houseNo) throws SQLException{
+		List<Sales> mList = new ArrayList<>();
+		String query = "SELECT month(start_date) 월, sum(total_price) 합계 "
 						+ "FROM receipt "
-						+ "WHERE month(start_date)=month(CURDATE()) AND house_no=?";
+						+ "WHERE house_no=? "
+						+ "group by 1";
 		
 		try(Connection conn = getConnection(); 
 			PreparedStatement ps = conn.prepareStatement(query)) {
@@ -284,16 +289,17 @@ public class SellerServiceImpl implements SellerService{
 			
 			ResultSet rs = ps.executeQuery();
 			
-			if(rs.next()) {
-				sumM = new Sales(getHouseName(houseNo), rs.getLong("합계"));
-			}else {//매출이 없는 경우
-				sumM = new Sales(getHouseName(houseNo), 0);
+			while(rs.next()) {
+				mList.add(new Sales(rs.getInt("월"), getHouseName(houseNo), rs.getLong("합계")));
 			}
-		
+			if(mList.isEmpty()) {
+				mList.add(new Sales(getHouseName(houseNo), 0));
+			}
+			
 		}catch (SQLException e) {
 			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
 		}
-		return sumM;
+		return mList;
 	}
 	
 	public static void main(String[] args) throws SQLException, DMLException, DuplicateNoException, RecordNotFoundException {
@@ -313,9 +319,9 @@ public class SellerServiceImpl implements SellerService{
 //	    service.updateHouse(new GuestHouse(110, "helpgod", "010-1234-1234", "house", "경주", rooms));
 //		service.deleteHouse(112);
 //	    service.findRegisterHouses("helpgod").forEach(i->System.out.println(i));
-	    System.out.println(service.searchSalesByYear(1));
-	    System.out.println(service.searchSalesByQuarter(1));
-	    System.out.println(service.searchSalesByMonth(1));
+	    service.searchSalesByYear(1).forEach(i->System.out.println(i));
+	    service.searchSalesByQuarter(1).forEach(i->System.out.println(i));
+	    service.searchSalesByMonth(1).forEach(i->System.out.println(i));
 	    System.out.println(service.getHouseName(1));
 	}
 }
