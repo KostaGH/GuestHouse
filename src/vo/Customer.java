@@ -10,9 +10,7 @@ public class Customer extends User {
 		super(userId, userName, pw, ssn, phoneNum, balance);
 		this.gender = gender;
 	}
-
 	public Customer() {}
-
 
 	public String getGender() {
 		return gender;

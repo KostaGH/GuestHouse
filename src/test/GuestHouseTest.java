@@ -1,10 +1,7 @@
 package test;
 
 import exception.*;
-import service.CustomerService;
-import service.CustomerServiceImpl;
-import service.SellerService;
-import service.SellerServiceImpl;
+import service.*;
 import vo.*;
 
 import java.sql.SQLException;
@@ -274,24 +271,30 @@ public class GuestHouseTest {
                                     switch (selectNum) {
                                         case 1:
                                             try {
-                                                Sales sales = sellService.searchSalesByYear(salesHouseNo);
-                                                System.out.println(sales);
+                                                List<Sales> sales = sellService.searchSalesByYear(salesHouseNo);
+                                                for (Sales sale : sales)
+                                                    System.out.println(sale.getDate() + "년도 매출 : " + sale.getSales());
+
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());
                                             }
                                             break;
                                         case 2:
                                             try {
-                                                Sales sales = sellService.searchSalesByMonth(salesHouseNo);
-                                                System.out.println(sales);
+                                                List<Sales> sales = sellService.searchSalesByMonth(salesHouseNo);
+                                                for (Sales sale : sales)
+                                                    System.out.println(sale.getDate() + "월 매출 : " + sale.getSales());
+
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());
                                             }
                                             break;
                                         case 3:
                                             try {
-                                                Sales sales = sellService.searchSalesByQuarter(salesHouseNo);
-                                                System.out.println(sales);
+                                                List<Sales> sales = sellService.searchSalesByQuarter(salesHouseNo);
+                                                for (Sales sale : sales)
+                                                    System.out.println(sale.getDate() + "분기 매출 : " + sale.getSales());
+
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());
                                             }
@@ -316,6 +319,7 @@ public class GuestHouseTest {
     // 로그인 및 회원가입 기능
     static User loginService() {
         User user = null;
+        LoginServiceImpl lService = LoginServiceImpl.getInstance();
 
         do {
             System.out.println("\n********************************");
@@ -345,27 +349,24 @@ public class GuestHouseTest {
                     System.out.println("*        로그인 시스템         *");
                     System.out.println("*                              *");
                     System.out.println("********************************");
+                    System.out.print("접속하려는 사용자 유형  [1]. Customer    [2]. Seller  :");
+                    userType = sc.nextInt();
                     System.out.print("사용자 ID :");
                     String userId = sc.next();
                     System.out.print("사용자 Password :");
                     String userPass = sc.next();
                     // User user = 로그인 메소드(userId, userPass);
-
-                    loginFlag = true;
-                    if (userId.equals("BAEK")) {
-                        user = new Customer("BAEK", "Dohyun", "2222", "222222-2222222", "010-5656-1234", 0, "M");
-                        userType = 1;
-                    } else {
-                        user = new Seller("helpgod", "midmid", "4444", "446644-4444444", "010-7834-9255", 0);
-                        userType = 2;
+                    try {
+                        user = lService.login(userType, userId, userPass);
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                        continue;
+                    } catch (RecordNotFoundException e) {
+                        System.out.println(e.getMessage());
+                        continue;
                     }
 
-                    /*if (user != null) {
-                        loginFlag = true;
-                        //userType 설정..
-                        userType = 2;
-                    }*/
-
+                    loginFlag = true;
                     break;
                 case 2:
                     System.out.println("\n*** 회원가입 하려고 하시는 유형을 선택하세요 ***");
@@ -377,12 +378,30 @@ public class GuestHouseTest {
                     System.out.println("*        회원가입 시스템         *");
                     System.out.println("*                              *");
                     System.out.println("********************************");
+
                     System.out.print("사용자 ID :");
                     String registerId = sc.next();
+                    System.out.print("사용자 이름 : ");
+                    String userName = sc.next();
                     System.out.print("사용자 Password :");
                     String registerPass = sc.next();
-                    // 회원가입 메소드(registerId, registerPass);
-                    System.out.println("OOO 님 회원가입이 완료되었습니다.");
+                    System.out.print("주민등록번호 : ");
+                    String ssn = sc.next();
+                    System.out.print("핸드폰 번호 : ");
+                    String phoneNum = sc.next();
+                    String gender = "";
+                    try {
+                        if (userType == 1) {
+                            System.out.print("성별(M, F) : ");
+                            gender = sc.next();
+                            lService.addUser(userType, new Customer(registerId, userName, registerPass, ssn, phoneNum, 0, gender));
+                        } else lService.addUser(userType, new Seller(registerId, userName, registerPass, ssn, phoneNum, 0));
+
+                        System.out.println("회원가입이 완료되었습니다.");
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                        continue;
+                    }
                     break;
                 case 3: // 프로그램 종료
                     System.exit(1);

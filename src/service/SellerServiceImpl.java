@@ -125,9 +125,9 @@ public class SellerServiceImpl implements SellerService{
 				ps.setInt(2, houseNo);
 				ps.setInt(3, list.get(i).getType());
 
-				if(ps.executeUpdate() ==0) {
+				if(ps.executeUpdate() ==0)
 					throw new RecordNotFoundException("[ Result Error Message ] => "+"정보를 수정할 게스트하우스가 존재하지 않거나 판매자 ID가 존재하지 않습니다.");
-				}
+
 				System.out.println("[ Result OK Message ] => "+"게스트하우스 정보를 수정했습니다.");
 
 			}catch (SQLException e) {
@@ -337,28 +337,5 @@ public class SellerServiceImpl implements SellerService{
 			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
 		}
 		return mList;
-	}
-	
-	public static void main(String[] args) throws SQLException, DMLException, DuplicateNoException, RecordNotFoundException {
-		SellerServiceImpl service = SellerServiceImpl.getInstance();
-		Room room1 = new Room(1, 10000);
-		Room room2 = new Room(2, 9000);
-		Room room3 = new Room(3, 8000);
-
-	    List<Room> rooms = new ArrayList<>();
-	    
-	    rooms.add(room1);
-	    rooms.add(room2);
-	    rooms.add(room3);
-	    
-	    //1. 게스트하우스 추가
-//		service.addHouse(new GuestHouse(111, "helpgod", "010-1234-1234", "house", "경주", rooms));
-//	    service.updateHouse(new GuestHouse(110, "helpgod", "010-1234-1234", "house", "경주", rooms));
-//		service.deleteHouse(112);
-//	    service.findRegisterHouses("helpgod").forEach(i->System.out.println(i));
-	    service.searchSalesByYear(1).forEach(i->System.out.println(i));
-	    service.searchSalesByQuarter(1).forEach(i->System.out.println(i));
-	    service.searchSalesByMonth(1).forEach(i->System.out.println(i));
-	    System.out.println(service.getHouseName(1));
 	}
 }

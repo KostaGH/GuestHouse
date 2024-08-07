@@ -5,8 +5,10 @@ import java.util.List;
 
 import exception.DMLException;
 import exception.DuplicateNoException;
+import exception.HouseNotFoundException;
 import exception.RecordNotFoundException;
 import vo.GuestHouse;
+import vo.Room;
 import vo.Sales;
 
 public interface SellerService {
