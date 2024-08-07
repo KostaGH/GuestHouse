@@ -11,8 +11,18 @@ public class Customer extends User {
 		this.gender = gender;
 		this.receipts = receipts;
 	}
+
+	public Customer(String userName, String pw, String phoneNum, String gender, String ssn) {
+		super(userName, pw, phoneNum, ssn);
+		this.gender = gender;
+	}
+	public Customer(String userId, String userName, String pw, String ssn, String phoneNum, int balance, String gender) {
+		super(userId, userName, pw, ssn, phoneNum, balance);
+		this.gender = gender;
+	}
+
 	public Customer() {}
-	
+
 	public String getGender() {
 		return gender;
 	}
@@ -28,6 +38,6 @@ public class Customer extends User {
 	
 	@Override
 	public String toString() {
-		return "Customer [gender=" + gender + ", receipts=" + receipts + "]";
+		return super.toString() + "Customer [gender=" + gender + ", receipts=" + receipts + "]";
 	}
 }
