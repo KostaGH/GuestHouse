@@ -1,11 +1,14 @@
 package service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import config.ServerInfo;
 import vo.Customer;
-import vo.Seller;
 import vo.User;
-
-import java.sql.*;
 
 public class LoginServiceImpl implements LoginService {
     // customer, seller 구분해주는 변수

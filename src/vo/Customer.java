@@ -23,6 +23,7 @@ public class Customer extends User {
 
 	public Customer() {}
 
+
 	public String getGender() {
 		return gender;
 	}
