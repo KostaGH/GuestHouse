@@ -101,7 +101,7 @@ public class LoginServiceImpl implements LoginService {
                     rs = ps.executeQuery();
                     if (rs.next()) {
                         cust = new Customer(rs.getString("cust_id"),
-                                rs.getString("cust_name"),
+                        		rs.getString("cust_name"),
                                 rs.getString("cust_password"),
                                 rs.getString("cust_ssn"),
                                 rs.getString("cust_phone"),
@@ -269,7 +269,7 @@ public class LoginServiceImpl implements LoginService {
     public static void main(String[] args) {
         LoginServiceImpl service = LoginServiceImpl.getInstance();
 //        System.out.println("&&&&&&&&&&&&&login&&&&&&&&&&&&&&");
-//        System.out.println(service.login(0, "BAEK", "2222"));
+        System.out.println(service.login(0, "BAEK", "2222"));
 //        System.out.println(service.login(1, "helpgod", "6666"));
 //        System.out.println("&&&&&&&&&&&&&addUser&&&&&&&&&&&&&&");
 //        service.addUser(0, new Customer("naflnafl", "butterfly", "8888", "888888-8888888", "010-8878-7788", 0, "M"));
