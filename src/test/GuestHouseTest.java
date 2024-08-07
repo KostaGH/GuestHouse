@@ -272,8 +272,11 @@ public class GuestHouseTest {
                                         case 1:
                                             try {
                                                 List<Sales> sales = sellService.searchSalesByYear(salesHouseNo);
-                                                for (Sales sale : sales)
-                                                    System.out.println(sale.getDate() + "년도 매출 : " + sale.getSales());
+                                                if (sales.size() == 1 && sales.get(0).getSales() == 0) System.out.println("아직 매출이 없습니다.");
+                                                else {
+                                                    for (Sales sale : sales)
+                                                        System.out.println(sale.getDate() + "년도 매출 : " + sale.getSales());
+                                                }
 
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());
@@ -282,8 +285,11 @@ public class GuestHouseTest {
                                         case 2:
                                             try {
                                                 List<Sales> sales = sellService.searchSalesByMonth(salesHouseNo);
-                                                for (Sales sale : sales)
-                                                    System.out.println(sale.getDate() + "월 매출 : " + sale.getSales());
+                                                if (sales.size() == 1 && sales.get(0).getSales() == 0) System.out.println("아직 매출이 없습니다.");
+                                                else {
+                                                    for (Sales sale : sales)
+                                                        System.out.println(sale.getDate() + "월 매출 : " + sale.getSales());
+                                                }
 
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());
@@ -292,8 +298,11 @@ public class GuestHouseTest {
                                         case 3:
                                             try {
                                                 List<Sales> sales = sellService.searchSalesByQuarter(salesHouseNo);
-                                                for (Sales sale : sales)
-                                                    System.out.println(sale.getDate() + "분기 매출 : " + sale.getSales());
+                                                if (sales.size() == 1 && sales.get(0).getSales() == 0) System.out.println("아직 매출이 없습니다.");
+                                                else {
+                                                    for (Sales sale : sales)
+                                                        System.out.println(sale.getDate() + "분기 매출 : " + sale.getSales());
+                                                }
 
                                             } catch (SQLException e) {
                                                 System.out.println(e.getMessage());

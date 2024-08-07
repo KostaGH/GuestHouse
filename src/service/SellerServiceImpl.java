@@ -25,8 +25,6 @@ public class SellerServiceImpl implements SellerService{
 	private SellerServiceImpl() {
 		try {
 			Class.forName(ServerInfo.DRIVER_NAME);
-			System.out.println("1. 드라이버 로딩 성공");
-			
 		} catch (ClassNotFoundException e) {
 			System.out.println("1. 드라이버 로딩 실패");
 		}
