@@ -17,7 +17,7 @@ public interface SellerService {
     List<GuestHouse> findRegisterHouses(String sellerId) throws RecordNotFoundException, DMLException;
     String getHouseName(int houseNo) throws SQLException ; //메소드 추가 (지남)
     boolean discount(int houseNo);
-    Sales searchSalesByYear(int houseNo) throws SQLException; //반환타입 변경
-    Sales searchSalesByQuarter(int houseNo) throws SQLException; //반환타입 변경
-    Sales searchSalesByMonth(int houseNo) throws SQLException; //반환타입 변경
+    List<Sales> searchSalesByYear(int houseNo) throws SQLException; //반환타입 변경
+    List<Sales> searchSalesByQuarter(int houseNo) throws SQLException; //반환타입 변경
+    List<Sales> searchSalesByMonth(int houseNo) throws SQLException; //반환타입 변경
 }

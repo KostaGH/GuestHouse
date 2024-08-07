@@ -11,13 +11,9 @@ public class Customer extends User {
 		this.gender = gender;
 	}
 
-//	public Customer(String userId, String userName, String pw, String ssn, String phoneNum, int balance, String gender, List<Receipt> receipts) {
-//		super();
-//		this.gender = gender;
-//		this.receipts = receipts;
-//	}
 	public Customer() {}
-	
+
+
 	public String getGender() {
 		return gender;
 	}
@@ -33,6 +29,6 @@ public class Customer extends User {
 	
 	@Override
 	public String toString() {
-		return "Customer [gender=" + gender + ", receipts=" + receipts + "]";
+		return super.toString() + "Customer [gender=" + gender + ", receipts=" + receipts + "]";
 	}
 }

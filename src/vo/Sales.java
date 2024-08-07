@@ -1,9 +1,17 @@
 package vo;
 
 public class Sales { //vo 추가 - 매출 (지남)
-    private String houseName;
+	private int date;
+	private String houseName;
     private long sales;
-    
+
+	
+	public Sales(int date, String houseName, long sales) {
+		super();
+		this.date = date;
+		this.houseName = houseName;
+		this.sales = sales;
+	}
 	public Sales(String houseName, long sales) {
 		super();
 		this.houseName = houseName;
@@ -26,6 +34,6 @@ public class Sales { //vo 추가 - 매출 (지남)
 	
 	@Override
 	public String toString() {
-		return "Sales [houseName=" + houseName + ", sales=" + sales + "]";
+		return "Sales [date=" + date + ", houseName=" + houseName + ", sales=" + sales + "]";
 	}
 }
