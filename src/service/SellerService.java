@@ -11,8 +11,9 @@ import vo.Sales;
 
 public interface SellerService {
     void addHouse(GuestHouse guestHouse) throws DuplicateNoException, DMLException; //예외 추가 (지남)
-    void updateHouse(GuestHouse guestHouse) throws RecordNotFoundException, DMLException;
+    void updateHouse(int houseNo, List<Room> list) throws RecordNotFoundException, DMLException;
     void deleteHouse(int houseNo) throws RecordNotFoundException, DMLException;
+    GuestHouse findByHouseno(int houseno) throws SQLException, HouseNotFoundException;
     List<GuestHouse> findRegisterHouses(String sellerId) throws RecordNotFoundException, DMLException;
     String getHouseName(int houseNo) throws SQLException ; //메소드 추가 (지남)
     boolean discount(int houseNo);

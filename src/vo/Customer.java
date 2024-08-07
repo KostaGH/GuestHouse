@@ -6,11 +6,16 @@ public class Customer extends User {
     private String gender;
     private List<Receipt> receipts;
     
-	public Customer(String gender, List<Receipt> receipts) {
-		super();
+	public Customer(String userId, String userName, String pw, String ssn, String phoneNum, int balance, String gender) {
+		super(userId, userName, pw, ssn, phoneNum, balance);
 		this.gender = gender;
-		this.receipts = receipts;
 	}
+
+//	public Customer(String userId, String userName, String pw, String ssn, String phoneNum, int balance, String gender, List<Receipt> receipts) {
+//		super();
+//		this.gender = gender;
+//		this.receipts = receipts;
+//	}
 	public Customer() {}
 	
 	public String getGender() {

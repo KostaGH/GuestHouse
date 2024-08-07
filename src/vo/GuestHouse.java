@@ -11,8 +11,7 @@ public class GuestHouse {
     private double avgGrade;
     private List<Room> rooms;
     
-	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location,
-			List<Room> rooms) {
+	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location, List<Room> rooms) {
 		super();
 		this.houseNo = houseNo;
 		this.sellerId = sellerId;
@@ -21,8 +20,8 @@ public class GuestHouse {
 		this.location = location;
 		this.rooms = rooms;
 	}
-	public GuestHouse(String sellerId, String housePhone, String houseName, String location,
-			List<Room> rooms) {
+
+	public GuestHouse(String sellerId, String housePhone, String houseName, String location, List<Room> rooms) {
 		super();
 		this.sellerId = sellerId;
 		this.housePhone = housePhone;
@@ -33,8 +32,7 @@ public class GuestHouse {
 
 	public GuestHouse() {}
 	
-	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location,
-			double avgGrade, List<Room> rooms) {
+	public GuestHouse(int houseNo, String sellerId, String housePhone, String houseName, String location, double avgGrade, List<Room> rooms) {
 		super();
 		this.houseNo = houseNo;
 		this.sellerId = sellerId;
@@ -44,6 +42,15 @@ public class GuestHouse {
 		this.avgGrade = avgGrade;
 		this.rooms = rooms;
 	}
+
+	public double getAvgGrade() {
+		return avgGrade;
+	}
+
+	public void setAvgGrade(double avgGrade) {
+		this.avgGrade = avgGrade;
+	}
+
 	public int getHouseNo() {
 		return houseNo;
 	}

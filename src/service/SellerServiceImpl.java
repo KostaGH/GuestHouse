@@ -12,6 +12,7 @@ import java.util.List;
 import config.ServerInfo;
 import exception.DMLException;
 import exception.DuplicateNoException;
+import exception.HouseNotFoundException;
 import exception.RecordNotFoundException;
 import vo.GuestHouse;
 import vo.Room;
@@ -24,8 +25,6 @@ public class SellerServiceImpl implements SellerService{
 	private SellerServiceImpl() {
 		try {
 			Class.forName(ServerInfo.DRIVER_NAME);
-			System.out.println("1. 드라이버 로딩 성공");
-			
 		} catch (ClassNotFoundException e) {
 			System.out.println("1. 드라이버 로딩 실패");
 		}
@@ -37,7 +36,6 @@ public class SellerServiceImpl implements SellerService{
 	////////////////////////////////공통 로직(고정적인 부분) //////////////////////////////////
 	public Connection getConnection() throws SQLException{
 	Connection conn = DriverManager.getConnection(ServerInfo.URL, ServerInfo.USER, ServerInfo.PASSWORD);
-	System.out.println("2. DB 연결 성공");
 	return conn;
 	}
 	
@@ -51,6 +49,12 @@ public class SellerServiceImpl implements SellerService{
 	
 	public void close(ResultSet rs) throws SQLException {
 	if(rs != null) rs.close();
+	}
+
+	private void closeAll(ResultSet rs, PreparedStatement ps, Connection conn) throws SQLException {
+		if(rs!=null) rs.close();
+		if (ps != null) ps.close();
+		if (conn != null) conn.close();
 	}
 	
 	////////////////////////////////비즈니스 로직(가변적인 부분) //////////////////////////////////
@@ -103,21 +107,20 @@ public class SellerServiceImpl implements SellerService{
 	
 	//2. 게스트하우스 수정
 	@Override
-	public void updateHouse(GuestHouse guestHouse) throws RecordNotFoundException, DMLException{
+	public void updateHouse(int houseNo, List<Room> list) throws RecordNotFoundException, DMLException{
 		for(int i=0; i<3; i++) {
-			String query = "UPDATE guesthouse SET sel_id=?, price=?, house_phone=?, house_name=?, location=? "
-							+ "WHERE house_no=? AND type=?";
+//			String query = "UPDATE guesthouse SET sel_id=?, price=?, house_phone=?, house_name=?, location=? "
+//							+ "WHERE house_no=? AND type=?";
+
+			//수정할 값 : 방의 가격
+			String query = "UPDATE guesthouse SET price = ? WHERE house_no=? AND type=?";
 	
 			try(Connection conn = getConnection(); 
 				PreparedStatement ps = conn.prepareStatement(query)) {
 				
-				ps.setString(1, guestHouse.getSellerId());
-				ps.setInt(2, guestHouse.getRooms().get(i).getPrice());
-				ps.setString(3, guestHouse.getHousePhone());
-				ps.setString(4, guestHouse.getHouseName());
-				ps.setString(5, guestHouse.getLocation());
-				ps.setInt(6, guestHouse.getHouseNo());
-				ps.setInt(7, guestHouse.getRooms().get(i).getType());
+				ps.setInt(1, list.get(i).getPrice());
+				ps.setInt(2, houseNo);
+				ps.setInt(3, list.get(i).getType());
 
 				if(ps.executeUpdate() ==0) {
 					throw new RecordNotFoundException("[ Result Error Message ] => "+"정보를 수정할 게스트하우스가 존재하지 않거나 판매자 ID가 존재하지 않습니다.");
@@ -148,6 +151,37 @@ public class SellerServiceImpl implements SellerService{
 
 		}catch (SQLException e) {
 			throw new DMLException("[ Result Error Message ] => "+"삭제 중 문제가 발생해 삭제가 이뤄지지 않았습니다.");
+		}
+	}
+
+	@Override
+	public GuestHouse findByHouseno(int houseno) throws SQLException, HouseNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		GuestHouse house = null;
+		List<Room> rooms = new ArrayList<Room>();
+
+		try {
+			conn = getConnection();
+			String query = "SELECT house_no, type, sel_id, price, house_phone, house_name, location FROM guesthouse WHERE house_no = ?";
+			ps = conn.prepareStatement(query);
+
+			ps.setInt(1, houseno);
+
+			rs = ps.executeQuery();
+
+			if(!rs.isBeforeFirst()) throw new HouseNotFoundException("[ Result Error Message ] => 해당 이름의 게스트하우스가 존재하지 않습니다.");
+			else {
+				while(rs.next()) {
+					rooms.add(new Room(rs.getInt("type"),rs.getInt("price")));
+					house = new GuestHouse(rs.getInt("house_no"), rs.getString("sel_id"), rs.getString("house_phone"), rs.getString("house_name"), rs.getString("location"), rooms);
+				}
+			}
+			return house;
+
+		} finally {
+			closeAll(rs, ps, conn);
 		}
 	}
 	
@@ -294,28 +328,5 @@ public class SellerServiceImpl implements SellerService{
 			throw new SQLException("[ Result Error Message ] => "+"매출 계산 중 문제가 발생했습니다.");
 		}
 		return sumM;
-	}
-	
-	public static void main(String[] args) throws SQLException, DMLException, DuplicateNoException, RecordNotFoundException {
-		SellerServiceImpl service = SellerServiceImpl.getInstance();
-		Room room1 = new Room(1, 10000);
-		Room room2 = new Room(2, 9000);
-		Room room3 = new Room(3, 8000);
-
-	    List<Room> rooms = new ArrayList<>();
-	    
-	    rooms.add(room1);
-	    rooms.add(room2);
-	    rooms.add(room3);
-	    
-	    //1. 게스트하우스 추가
-//		service.addHouse(new GuestHouse(111, "helpgod", "010-1234-1234", "house", "경주", rooms));
-//	    service.updateHouse(new GuestHouse(110, "helpgod", "010-1234-1234", "house", "경주", rooms));
-//		service.deleteHouse(112);
-//	    service.findRegisterHouses("helpgod").forEach(i->System.out.println(i));
-	    System.out.println(service.searchSalesByYear(1));
-	    System.out.println(service.searchSalesByQuarter(1));
-	    System.out.println(service.searchSalesByMonth(1));
-	    System.out.println(service.getHouseName(1));
 	}
 }

@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -137,7 +136,7 @@ public class CustomerServiceImpl implements CustomerService{
 			closeAll(rs, ps, conn);
 		}
 	}
-	
+
 	@Override
 	public GuestHouse findByHouseno(int houseno) throws SQLException, HouseNotFoundException{
 		Connection conn = null;
@@ -498,15 +497,16 @@ public class CustomerServiceImpl implements CustomerService{
 	@Override
 	public String descHouse(int houseNo, String custId) throws SQLException, ReceiptNotFoundException, HouseNotFoundException {
 		GuestHouse guest = findByHouseno(houseNo);
-		String detail = "";
+		String detail = "*******************************************************\n";
+		detail += "                   [ " + guest.getHouseName() + "의 정보 ]                      \n";
 		for(Room room : guest.getRooms()) {
-			detail += "가격 : " + room.getPrice() + "원 (" + guest.getHouseName() + "의 " + room.getType() + "번 방은 다른 " + marketPrice(houseNo, room.getType()) + "%의 숙소의 " + room.getType() + "번 방"
-					+ "보다 쌉니다!!)\n";			
+			detail += room.getType() + "번 방" + "가격 : " + room.getPrice() + "원 " + "(다른 " + marketPrice(houseNo, room.getType()) + "%의 숙소의 " + room.getType() + "번 방 보다 쌉니다!!)\n";
 		}
 		detail += "재방문율 : " + rateRevisit(houseNo) + "%\n";
 		detail += "성비 : 남 " + rateGender(houseNo) + "% 여 " + (100-rateGender(houseNo)) + "%\n";
 		detail += "평점 : " + showGrade(houseNo) + " 점\n";
-		detail += "방문 횟수 : " + visitCount(houseNo, custId) + "번";
+		detail += "방문 횟수 : " + visitCount(houseNo, custId) + "번\n";
+		detail += "*******************************************************\n";
 		return detail;
 	}
 
