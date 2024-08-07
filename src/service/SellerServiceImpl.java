@@ -38,7 +38,6 @@ public class SellerServiceImpl implements SellerService{
 	////////////////////////////////공통 로직(고정적인 부분) //////////////////////////////////
 	public Connection getConnection() throws SQLException{
 	Connection conn = DriverManager.getConnection(ServerInfo.URL, ServerInfo.USER, ServerInfo.PASSWORD);
-	System.out.println("2. DB 연결 성공");
 	return conn;
 	}
 	
