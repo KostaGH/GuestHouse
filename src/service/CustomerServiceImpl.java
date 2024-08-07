@@ -36,20 +36,17 @@ public class CustomerServiceImpl implements CustomerService{
 		return service;
 	}
 	
-	@Override
-	public Connection getConnect() throws SQLException {
+	private Connection getConnect() throws SQLException {
 		Connection conn = DriverManager.getConnection(ServerInfo.URL, ServerInfo.USER, ServerInfo.PASSWORD);
 		return conn;
 	}
 
-	@Override
-	public void closeAll(PreparedStatement ps, Connection conn) throws SQLException {
+	private void closeAll(PreparedStatement ps, Connection conn) throws SQLException {
 		if(ps!=null) ps.close();
 		if(conn!=null) conn.close();
 	}
 
-	@Override
-	public void closeAll(ResultSet rs, PreparedStatement ps, Connection conn) throws SQLException {
+	private void closeAll(ResultSet rs, PreparedStatement ps, Connection conn) throws SQLException {
 		if(rs!=null) rs.close();
 		closeAll(ps, conn);
 	}
@@ -338,8 +335,7 @@ public class CustomerServiceImpl implements CustomerService{
 		
 	}
 	
-	@Override
-	public int searchRoomPrice(int houseno, int type) throws SQLException {
+	private int searchRoomPrice(int houseno, int type) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -420,8 +416,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}		
 	}
 	
-	@Override
-	public void updateCustBalance(String custId, int totalprice) throws SQLException {
+	private void updateCustBalance(String custId, int totalprice) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		
@@ -440,8 +435,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 	
-	@Override
-	public void updateSelBalance(String selId, int totalprice) throws SQLException {
+	private void updateSelBalance(String selId, int totalprice) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		
@@ -460,8 +454,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 	
-	@Override
-	public void chargeSelBalance(String selId, int totalprice) throws SQLException {
+	private void chargeSelBalance(String selId, int totalprice) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		
@@ -480,8 +473,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 	
-	@Override
-	public String searchSelId(int houseno) throws SQLException {
+	private String searchSelId(int houseno) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -507,25 +499,23 @@ public class CustomerServiceImpl implements CustomerService{
 	public String descHouse(int houseNo, String custId) throws SQLException, ReceiptNotFoundException, HouseNotFoundException {
 		GuestHouse guest = findByHouseno(houseNo);
 		String detail = "";
-		System.out.println(detail);
 		for(Room room : guest.getRooms()) {
-			detail += "이 방은 다른 " + marketPrice(houseNo, room.getType()) + "%의 숙소보다 쌉니다!!\n";			
+			detail += "가격 : " + room.getPrice() + "원 (" + guest.getHouseName() + "의 " + room.getType() + "번 방은 다른 " + marketPrice(houseNo, room.getType()) + "%의 숙소의 " + room.getType() + "번 방"
+					+ "보다 쌉니다!!)\n";			
 		}
 		detail += "재방문율 : " + rateRevisit(houseNo) + "%\n";
 		detail += "성비 : 남 " + rateGender(houseNo) + "% 여 " + (100-rateGender(houseNo)) + "%\n";
-		detail += "평점 : " + showGrade(houseNo) + " 점";
+		detail += "평점 : " + showGrade(houseNo) + " 점\n";
 		detail += "방문 횟수 : " + visitCount(houseNo, custId) + "번";
 		return detail;
 	}
 
-	@Override
-	public int rateRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
+	private int rateRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
 		return 100*searchRevisit(houseNo)/searchvisit(houseNo);
 		
 	}
 	
-	@Override
-	public int searchRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
+	private int searchRevisit(int houseNo) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -550,8 +540,7 @@ public class CustomerServiceImpl implements CustomerService{
 		
 	}
 
-	@Override
-	public int searchvisit(int houseNo) throws SQLException, ReceiptNotFoundException {
+	private int searchvisit(int houseNo) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -576,8 +565,7 @@ public class CustomerServiceImpl implements CustomerService{
 		
 	}
 	
-	@Override
-	public int rateGender(int houseNo) throws SQLException, ReceiptNotFoundException {
+	private int rateGender(int houseNo) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -602,8 +590,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 
-	@Override
-	public int marketPrice(int houseNo, int type) throws SQLException, ReceiptNotFoundException {
+	private int marketPrice(int houseNo, int type) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -611,7 +598,7 @@ public class CustomerServiceImpl implements CustomerService{
 		try {
 			conn = getConnect();
 			String query = "SELECT round(r.rate * 100) rate\n"
-					+ "FROM (SELECT house_no, type, price, cume_dist() over(ORDER BY price DESC) rate FROM guesthouse) r\n"
+					+ "FROM (SELECT house_no, type, price, cume_dist() over(PARTITION BY(type) ORDER BY price DESC) rate FROM guesthouse) r\n"
 					+ "WHERE r.house_no=? AND r.type=?";
 			ps = conn.prepareStatement(query);
 			
@@ -629,8 +616,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 
-	@Override
-	public double showGrade(int houseNo) throws SQLException, ReceiptNotFoundException {
+	private double showGrade(int houseNo) throws SQLException, ReceiptNotFoundException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -653,8 +639,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 
-	@Override
-	public int visitCount(int houseNo, String custId) throws SQLException {
+	private int visitCount(int houseNo, String custId) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -751,8 +736,7 @@ public class CustomerServiceImpl implements CustomerService{
 		}
 	}
 	
-	@Override
-	public List<Receipt> searchReserveByHouseno(int houseno, int type) throws SQLException{
+	private List<Receipt> searchReserveByHouseno(int houseno, int type) throws SQLException{
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
