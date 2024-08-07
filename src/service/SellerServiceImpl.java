@@ -25,8 +25,6 @@ public class SellerServiceImpl implements SellerService{
 	private SellerServiceImpl() {
 		try {
 			Class.forName(ServerInfo.DRIVER_NAME);
-			System.out.println("1. 드라이버 로딩 성공");
-			
 		} catch (ClassNotFoundException e) {
 			System.out.println("1. 드라이버 로딩 실패");
 		}
@@ -38,7 +36,6 @@ public class SellerServiceImpl implements SellerService{
 	////////////////////////////////공통 로직(고정적인 부분) //////////////////////////////////
 	public Connection getConnection() throws SQLException{
 	Connection conn = DriverManager.getConnection(ServerInfo.URL, ServerInfo.USER, ServerInfo.PASSWORD);
-	System.out.println("2. DB 연결 성공");
 	return conn;
 	}
 	
