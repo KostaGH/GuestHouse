@@ -17,7 +17,15 @@ public class User {
 		this.phoneNum = phoneNum;
 		this.balance = balance;
 	}
+	public User(String userName, String pw, String phoneNum, String ssn) {
+		super();
+		this.userName = userName;
+		this.pw = pw;
+		this.phoneNum = phoneNum;
+		this.ssn = ssn;
+	}
 	public User() {}
+	
 	
 	public String getUserId() {
 		return userId;
