@@ -9,7 +9,6 @@ public class User {
     private int balance;
     
 	public User(String userId, String userName, String pw, String ssn, String phoneNum, int balance) {
-		super();
 		this.userId = userId;
 		this.userName = userName;
 		this.pw = pw;

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import config.ServerInfo;
+import exception.RecordNotFoundException;
 import vo.Customer;
 import vo.User;
 
@@ -45,9 +46,9 @@ public class LoginServiceImpl implements LoginService {
 
     // 비즈니스로직
     @Override
-    public void addUser(int num, User user) {
+    public void addUser(int num, User user) throws SQLException {
         // customer
-        if (userType == num) {
+        if (num == 1) {
             String query = "INSERT INTO customer (cust_id, cust_name, cust_password, cust_ssn, cust_phone, cust_balance, cust_gender) VALUES(?,?,?,?,?,?,?)";
 
             try (Connection conn = getConnect(); PreparedStatement ps = conn.prepareStatement(query)) {
@@ -81,19 +82,19 @@ public class LoginServiceImpl implements LoginService {
                 ps.executeUpdate();
 
             } catch (SQLException e) {
-                System.out.println("[Error] add seller");
+                throw new SQLException();
             }
         }
     }
 
     @Override
-    public User login (int num, String userId, String pw) {
+    public User login (int num, String userId, String pw) throws SQLException, RecordNotFoundException{
         User user = null;
         Customer cust = null;
         ResultSet rs = null;
 
         // customer
-        if (userType == num) {
+        if (num == 1) {
             String query = "SELECT cust_id, cust_name, cust_password, cust_ssn, cust_phone, cust_balance, cust_gender FROM customer WHERE cust_id = ? AND cust_password = ?";
             try (Connection conn = getConnect(); PreparedStatement ps = conn.prepareStatement(query)) {
                     ps.setString(1, userId);
@@ -108,12 +109,12 @@ public class LoginServiceImpl implements LoginService {
                                 rs.getInt("cust_balance"),
                                 rs.getString("cust_gender"));
                         return cust;
-                    }
+                    }else throw  new RecordNotFoundException();
             } catch (SQLException e) {
-                System.out.println("[Error] customer login");
+                throw new SQLException();
             }
         //seller
-        } else if (userType+1 == num) {
+        } else if (num == 2) {
             String query = "SELECT sel_id, sel_name, sel_password, sel_ssn, sel_phone, sel_balance FROM seller WHERE sel_id = ? AND sel_password = ?";
             try (Connection conn = getConnect(); PreparedStatement ps = conn.prepareStatement(query)) {
                     ps.setString(1, userId);
@@ -127,9 +128,9 @@ public class LoginServiceImpl implements LoginService {
                                 rs.getString("sel_phone"),
                                 rs.getInt("sel_balance"));
                         return user;
-                    }
+                    }else throw  new RecordNotFoundException();
             } catch (SQLException e) {
-                System.out.println("[Error] seller login");
+                throw new SQLException();
             }
         } else {
             System.out.println("[Error] login");

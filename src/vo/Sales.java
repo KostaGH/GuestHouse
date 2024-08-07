@@ -18,7 +18,15 @@ public class Sales { //vo 추가 - 매출 (지남)
 		this.sales = sales;
 	}
 	public Sales() {}
-	
+
+	public int getDate() {
+		return date;
+	}
+
+	public void setDate(int date) {
+		this.date = date;
+	}
+
 	public String getHouseName() {
 		return houseName;
 	}
